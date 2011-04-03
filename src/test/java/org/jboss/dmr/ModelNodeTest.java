@@ -259,7 +259,81 @@ public class ModelNodeTest {
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
         try {
             node.writeBase64(os);
-            assertEquals(652, os.toByteArray().length);
+            assertEquals("bwAAABAAC2Rlc2NyaXB0aW9ucwAUQSBtYW5hZ2FibGUgcmVzb3VyY2UABHR5cGV0bwAUdGFpbC1jb21tZW50LWFsbG93ZWRaAAAKYXR0cmlidXRlc28AAAADAANmb29zABdzb21lIGRlc2NyaXB0aW9uIG9mIGZvbwADYmFycwAXc29tZSBkZXNjcmlwdGlvbiBvZiBiYXIABGxpc3RsAAAAA3MABnZhbHVlMXMABnZhbHVlMnMABnZhbHVlMwAKdmFsdWUtdHlwZW8AAAACAARzaXpldEkABWNvbG9ydHMAEWJpZy1kZWNpbWFsLXZhbHVlZAAEMTAuMAARYmlnLWludGVnZXItdmFsdWVpAAAAAQoAC2J5dGVzLXZhbHVlYgAAAAIANwAMZG91YmxlLXZhbHVlREBLgAAAAAAAABBtYXgtZG91YmxlLXZhbHVlRH/v////////AAlpbnQtdmFsdWVJAAAADAANbWF4LWludC12YWx1ZUl/////AApsb25nLXZhbHVlSgAAAAAAAAAOAA5tYXgtbG9uZy12YWx1ZUp//////////wAOcHJvcGVydHktdmFsdWVwAAhwcm9wZXJ0eXR1ABBleHByZXNzaW9uLXZhbHVlZQALJGV4cHJlc3Npb24=", new String(os.toByteArray()));
+
+            os.reset();
+            ModelNode testOperation = new ModelNode();
+            testOperation.get("operation").set("read-children-names");
+            testOperation.get("child-type").set("subsystem");
+            testOperation.get("address").setEmptyList();
+            testOperation.writeBase64(os);
+            assertEquals("bwAAAAMACW9wZXJhdGlvbnMAE3JlYWQtY2hpbGRyZW4tbmFtZXMACmNoaWxkLXR5cGVzAAlzdWJzeXN0ZW0AB2FkZHJlc3NsAAAAAA==", new String(os.toByteArray()));
+
+            os.reset();
+            testOperation = new ModelNode();
+            testOperation.get("operation").set("read-children-names");
+            testOperation.get("child-type").set("host");
+            testOperation.get("address").setEmptyList();
+            testOperation.writeBase64(os);
+            assertEquals("bwAAAAMACW9wZXJhdGlvbnMAE3JlYWQtY2hpbGRyZW4tbmFtZXMACmNoaWxkLXR5cGVzAARob3N0AAdhZGRyZXNzbAAAAAA=", new String(os.toByteArray()));
+
+            os.reset();
+            testOperation = new ModelNode();
+            testOperation.get("operation").set("read-children-names");
+            testOperation.get("child-type").set("server-group");
+            testOperation.get("address").setEmptyList();
+            testOperation.writeBase64(os);
+            assertEquals("bwAAAAMACW9wZXJhdGlvbnMAE3JlYWQtY2hpbGRyZW4tbmFtZXMACmNoaWxkLXR5cGVzAAxzZXJ2ZXItZ3JvdXAAB2FkZHJlc3NsAAAAAA==", new String(os.toByteArray()));
+
+            os.reset();
+            testOperation = new ModelNode();
+            testOperation.get("operation").set("read-children-names");
+            testOperation.get("address").setEmptyList();
+            testOperation.get("child-type").set("socket-binding-group");
+            testOperation.writeBase64(os);
+            assertEquals("bwAAAAMACW9wZXJhdGlvbnMAE3JlYWQtY2hpbGRyZW4tbmFtZXMAB2FkZHJlc3NsAAAAAAAKY2hpbGQtdHlwZXMAFHNvY2tldC1iaW5kaW5nLWdyb3Vw", new String(os.toByteArray()));
+
+            os.reset();
+            testOperation = new ModelNode();
+            testOperation.get("operation").set("read-children-resources");
+            testOperation.get("child-type").set("server-config");
+            testOperation.get("address").add().set("host", "null");
+            testOperation.get("include-runtime").set(true);
+            testOperation.writeBase64(os);
+            assertEquals("bwAAAAQACW9wZXJhdGlvbnMAF3JlYWQtY2hpbGRyZW4tcmVzb3VyY2VzAApjaGlsZC10eXBlcwANc2VydmVyLWNvbmZpZwAHYWRkcmVzc2wAAAABcAAEaG9zdHMABG51bGwAD2luY2x1ZGUtcnVudGltZVoB", new String(os.toByteArray()));
+
+            os.reset();
+            testOperation = new ModelNode();
+            testOperation.get("operation").set("read-children-names");
+            testOperation.get("child-type").set("profile");
+            testOperation.get("address").setEmptyList();
+            testOperation.writeBase64(os);
+            assertEquals("bwAAAAMACW9wZXJhdGlvbnMAE3JlYWQtY2hpbGRyZW4tbmFtZXMACmNoaWxkLXR5cGVzAAdwcm9maWxlAAdhZGRyZXNzbAAAAAA=", new String(os.toByteArray()));
+
+            os.reset();
+            testOperation = new ModelNode();
+            testOperation.get("operation").set("read-children-names");
+            testOperation.get("child-type").set("server-group");
+            testOperation.get("address").setEmptyList();
+            testOperation.writeBase64(os);
+            assertEquals("bwAAAAMACW9wZXJhdGlvbnMAE3JlYWQtY2hpbGRyZW4tbmFtZXMACmNoaWxkLXR5cGVzAAxzZXJ2ZXItZ3JvdXAAB2FkZHJlc3NsAAAAAA==", new String(os.toByteArray()));
+
+            os.reset();
+            testOperation = new ModelNode();
+            testOperation.get("operation").set("read-children-resources");
+            testOperation.get("address").add().set("profile", "default");
+            testOperation.get("address").add().set("subsystem", "datasources");
+            testOperation.get("child-type").set("data-source");
+            testOperation.writeBase64(os);
+            assertEquals("bwAAAAMACW9wZXJhdGlvbnMAF3JlYWQtY2hpbGRyZW4tcmVzb3VyY2VzAAdhZGRyZXNzbAAAAAJwAAdwcm9maWxlcwAHZGVmYXVsdHAACXN1YnN5c3RlbXMAC2RhdGFzb3VyY2VzAApjaGlsZC10eXBlcwALZGF0YS1zb3VyY2U=", new String(os.toByteArray()));
+
+            os.reset();
+            testOperation = new ModelNode();
+            testOperation.get("operation").set("read-children-types");
+            testOperation.get("address").setEmptyList();
+            testOperation.get("child-type");
+            testOperation.writeBase64(os);
+            assertEquals("bwAAAAMACW9wZXJhdGlvbnMAE3JlYWQtY2hpbGRyZW4tdHlwZXMAB2FkZHJlc3NsAAAAAAAKY2hpbGQtdHlwZXU=", new String(os.toByteArray()));
         } catch (final IOException e) {
             fail("IOException not expected: " + e.getMessage());
         }
@@ -269,10 +343,93 @@ public class ModelNodeTest {
     public void testFromBase64() {
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
         try {
-            node.writeBase64(os);
-            ModelNode newNode = ModelNode.fromBase64(new ByteArrayInputStream(os.toByteArray()));
+            ModelNode newNode = ModelNode.fromBase64(new ByteArrayInputStream("bwAAABAAC2Rlc2NyaXB0aW9ucwAUQSBtYW5hZ2FibGUgcmVzb3VyY2UABHR5cGV0bwAUdGFpbC1jb21tZW50LWFsbG93ZWRaAAAKYXR0cmlidXRlc28AAAADAANmb29zABdzb21lIGRlc2NyaXB0aW9uIG9mIGZvbwADYmFycwAXc29tZSBkZXNjcmlwdGlvbiBvZiBiYXIABGxpc3RsAAAAA3MABnZhbHVlMXMABnZhbHVlMnMABnZhbHVlMwAKdmFsdWUtdHlwZW8AAAACAARzaXpldEkABWNvbG9ydHMAEWJpZy1kZWNpbWFsLXZhbHVlZAAEMTAuMAARYmlnLWludGVnZXItdmFsdWVpAAAAAQoAC2J5dGVzLXZhbHVlYgAAAAIANwAMZG91YmxlLXZhbHVlREBLgAAAAAAAABBtYXgtZG91YmxlLXZhbHVlRH/v////////AAlpbnQtdmFsdWVJAAAADAANbWF4LWludC12YWx1ZUl/////AApsb25nLXZhbHVlSgAAAAAAAAAOAA5tYXgtbG9uZy12YWx1ZUp//////////wAOcHJvcGVydHktdmFsdWVwAAhwcm9wZXJ0eXR1ABBleHByZXNzaW9uLXZhbHVlZQALJGV4cHJlc3Npb24=".getBytes()));
             assertNotNull(newNode);
             assertEquals(node, newNode);
+
+            os.reset();
+            ModelNode testOperation = new ModelNode();
+            testOperation.get("operation").set("read-children-names");
+            testOperation.get("child-type").set("subsystem");
+            testOperation.get("address").setEmptyList();
+            newNode = ModelNode.fromBase64(new ByteArrayInputStream("bwAAAAMACW9wZXJhdGlvbnMAE3JlYWQtY2hpbGRyZW4tbmFtZXMACmNoaWxkLXR5cGVzAAlzdWJzeXN0ZW0AB2FkZHJlc3NsAAAAAA==".getBytes()));
+            assertNotNull(newNode);
+            assertEquals(testOperation, newNode);
+
+            os.reset();
+            testOperation = new ModelNode();
+            testOperation.get("operation").set("read-children-names");
+            testOperation.get("child-type").set("host");
+            testOperation.get("address").setEmptyList();
+            testOperation.writeBase64(os);
+            newNode = ModelNode.fromBase64(new ByteArrayInputStream("bwAAAAMACW9wZXJhdGlvbnMAE3JlYWQtY2hpbGRyZW4tbmFtZXMACmNoaWxkLXR5cGVzAARob3N0AAdhZGRyZXNzbAAAAAA=".getBytes()));
+            assertNotNull(newNode);
+            assertEquals(testOperation, newNode);
+
+            os.reset();
+            testOperation = new ModelNode();
+            testOperation.get("operation").set("read-children-names");
+            testOperation.get("child-type").set("server-group");
+            testOperation.get("address").setEmptyList();
+            newNode = ModelNode.fromBase64(new ByteArrayInputStream("bwAAAAMACW9wZXJhdGlvbnMAE3JlYWQtY2hpbGRyZW4tbmFtZXMACmNoaWxkLXR5cGVzAAxzZXJ2ZXItZ3JvdXAAB2FkZHJlc3NsAAAAAA==".getBytes()));
+            assertNotNull(newNode);
+            assertEquals(testOperation, newNode);
+
+            os.reset();
+            testOperation = new ModelNode();
+            testOperation.get("operation").set("read-children-names");
+            testOperation.get("address").setEmptyList();
+            testOperation.get("child-type").set("socket-binding-group");
+            newNode = ModelNode.fromBase64(new ByteArrayInputStream("bwAAAAMACW9wZXJhdGlvbnMAE3JlYWQtY2hpbGRyZW4tbmFtZXMAB2FkZHJlc3NsAAAAAAAKY2hpbGQtdHlwZXMAFHNvY2tldC1iaW5kaW5nLWdyb3Vw".getBytes()));
+            assertNotNull(newNode);
+            assertEquals(testOperation, newNode);
+
+            os.reset();
+            testOperation = new ModelNode();
+            testOperation.get("operation").set("read-children-resources");
+            testOperation.get("child-type").set("server-config");
+            testOperation.get("address").add().set("host", "null");
+            testOperation.get("include-runtime").set(true);
+            newNode = ModelNode.fromBase64(new ByteArrayInputStream("bwAAAAQACW9wZXJhdGlvbnMAF3JlYWQtY2hpbGRyZW4tcmVzb3VyY2VzAApjaGlsZC10eXBlcwANc2VydmVyLWNvbmZpZwAHYWRkcmVzc2wAAAABcAAEaG9zdHMABG51bGwAD2luY2x1ZGUtcnVudGltZVoB".getBytes()));
+            assertNotNull(newNode);
+            assertEquals(testOperation, newNode);
+
+            os.reset();
+            testOperation = new ModelNode();
+            testOperation.get("operation").set("read-children-names");
+            testOperation.get("child-type").set("profile");
+            testOperation.get("address").setEmptyList();
+            newNode = ModelNode.fromBase64(new ByteArrayInputStream("bwAAAAMACW9wZXJhdGlvbnMAE3JlYWQtY2hpbGRyZW4tbmFtZXMACmNoaWxkLXR5cGVzAAdwcm9maWxlAAdhZGRyZXNzbAAAAAA=".getBytes()));
+            assertNotNull(newNode);
+            assertEquals(testOperation, newNode);
+
+            os.reset();
+            testOperation = new ModelNode();
+            testOperation.get("operation").set("read-children-names");
+            testOperation.get("child-type").set("server-group");
+            testOperation.get("address").setEmptyList();
+            newNode = ModelNode.fromBase64(new ByteArrayInputStream("bwAAAAMACW9wZXJhdGlvbnMAE3JlYWQtY2hpbGRyZW4tbmFtZXMACmNoaWxkLXR5cGVzAAxzZXJ2ZXItZ3JvdXAAB2FkZHJlc3NsAAAAAA==".getBytes()));
+            assertNotNull(newNode);
+            assertEquals(testOperation, newNode);
+
+            os.reset();
+            testOperation = new ModelNode();
+            testOperation.get("operation").set("read-children-resources");
+            testOperation.get("address").add().set("profile", "default");
+            testOperation.get("address").add().set("subsystem", "datasources");
+            testOperation.get("child-type").set("data-source");
+            newNode = ModelNode.fromBase64(new ByteArrayInputStream("bwAAAAMACW9wZXJhdGlvbnMAF3JlYWQtY2hpbGRyZW4tcmVzb3VyY2VzAAdhZGRyZXNzbAAAAAJwAAdwcm9maWxlcwAHZGVmYXVsdHAACXN1YnN5c3RlbXMAC2RhdGFzb3VyY2VzAApjaGlsZC10eXBlcwALZGF0YS1zb3VyY2U=".getBytes()));
+            assertNotNull(newNode);
+            assertEquals(testOperation, newNode);
+
+            os.reset();
+            testOperation = new ModelNode();
+            testOperation.get("operation").set("read-children-types");
+            testOperation.get("address").setEmptyList();
+            testOperation.get("child-type");
+            newNode = ModelNode.fromBase64(new ByteArrayInputStream("bwAAAAMACW9wZXJhdGlvbnMAE3JlYWQtY2hpbGRyZW4tdHlwZXMAB2FkZHJlc3NsAAAAAAAKY2hpbGQtdHlwZXU=".getBytes()));
+            assertNotNull(newNode);
+            assertEquals(testOperation, newNode);
         } catch (final IOException e) {
             fail("IOException not expected: " + e.getMessage());
         }

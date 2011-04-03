@@ -31,7 +31,7 @@ import java.io.IOException;
 
 /**
  * Base64 encoding/decoding utilities.
- * 
+ *
  * @author Jonathan Pearlin
  */
 public class Base64 {
@@ -66,18 +66,31 @@ public class Base64 {
      */
     private static final int EOS = -1;
 
-    private static int readMostly(java.io.InputStream input, final byte[] buf) throws IOException {
+    /**
+     * Reads up to the buffer's length of bytes or until EOS is encountered, returning the
+     * resulting offset into the stream.
+     * @param input The input stream.
+     * @param buf The buffer that represents the number of bytes to be read, excluding any skipped bytes.
+     * @param skipCRLF If true, skips any encountered CR or LF bytes while reading from the input stream.  If false, treats the CR or
+     *  LF bytes as any other byte being read from the input stream.  <b>NOTE</b>:  this flag should only ever be set to
+     *  true by decoding functions that want to skip the wrapping produced by some Base64 encoders.
+     * @return The offset into the stream for the next read or 0 if EOS is encountered.
+     * @throws IOException if an error occurs while attempting to read data from the input stream.
+     */
+    private static int readMostly(final java.io.InputStream input, final byte[] buf, boolean skipCRLF) throws IOException {
         int offset = 0;
         int remaining = buf.length;
         int read = 0;
 
         while (remaining > 0) {
-            read = input.read(buf, offset, remaining);
-            if (read == EOS)
+            read = input.read();
+            if(read == EOS) {
                 return offset == 0 ? EOS : offset;
-
-            offset += read;
-            remaining -= read;
+            } else if((skipCRLF && read != 0xA && read != 0xD) || !skipCRLF) {
+                buf[offset] = (byte)read;
+                offset++;
+                remaining--;
+            }
         }
 
         return offset;
@@ -86,7 +99,7 @@ public class Base64 {
     /**
      * Encodes the supplied byte array into a Base64 encoded string. Note that this implementation does NOT insert newline
      * characters every 72 bytes.
-     * 
+     *
      * @param bytes A byte array of data to be encoded.
      * @return The Base64 encoded string representation of the bytes or {@code null} if the data cannot be encoded.
      * @throws IOException if an error occurs during encoding.
@@ -102,7 +115,7 @@ public class Base64 {
     /**
      * Decodes a Base64 encoded string into a byte array of the originally encoded values. Note that this implementation does
      * NOT handle decoding additional newline characters added during the encoding process every 72 bytes.
-     * 
+     *
      * @param base64 A Base64 encoded string that represents binary data.
      * @return A byte array containing the originally encoded binary data or {@code null} if the data cannot be decoded.
      * @throws IOException if an error occurs during decoding.
@@ -117,7 +130,7 @@ public class Base64 {
 
     /**
      * Decodes an array of bytes that represents Base64 encoded characters into the original byte array of binary data.
-     * 
+     *
      * @param bytes A byte array representing Base64 encoded characters.
      * @return The original byte array of binary data.
      * @throws IOException if an error occurs during decoding.
@@ -151,7 +164,7 @@ public class Base64 {
 
     /**
      * Encodes the supplied byte data into a byte array of Base64 encoded data.
-     * 
+     *
      * @param bytes Binary data to be encoded into Base64.
      * @return A byte array containing Base64 encoded data.
      * @throws IOException if an error occurs during encoding.
@@ -186,7 +199,7 @@ public class Base64 {
     /**
      * Encodes the next block of data read from the supplied input stream and writes the encoded value to the supplied output
      * stream.
-     * 
+     *
      * @param is The source of the data to be encoded.
      * @param inputBuffer The buffer containing the data to be encoded.
      * @param outputBuffer The buffer where the encoded data will be placed.
@@ -198,12 +211,12 @@ public class Base64 {
         /*
          * Read one block (3 bytes) of data at a time and encode it as base 64 data.
          */
-        int numBytesRead = readMostly(is, inputBuffer);
+        int numBytesRead = readMostly(is, inputBuffer, false);
 
         /*
-         * Check for EOS.
+         * Verify that there are actually some bytes to write!
          */
-        if (numBytesRead != EOS) {
+        if (numBytesRead > 0) {
             encodeData(inputBuffer, outputBuffer, numBytesRead);
         }
 
@@ -212,7 +225,7 @@ public class Base64 {
 
     /**
      * Encodes a block of byte data into base 64 encoded data.
-     * 
+     *
      * @param inputBuffer The buffer containing the data to be encoded.
      * @param outputBuffer The buffer where the encoded data will be placed.
      * @param numberOfBytes The number of bytes read during the encoding process for this block. This value is important to
@@ -256,18 +269,18 @@ public class Base64 {
                 }
                 convertedIndex++;
             }
-        }
 
-        // If padding is required, add the padding character to the output for this block.
-        for (int i = convertedIndex; i < DECODE_BLOCK_SIZE_BYTES; i++) {
-            outputBuffer[i] = (byte) PADDING_CHARACTER;
+            // If padding is required, add the padding character to the output for this block.
+            for (int i = convertedIndex; i < DECODE_BLOCK_SIZE_BYTES; i++) {
+                outputBuffer[i] = (byte) PADDING_CHARACTER;
+            }
         }
     }
 
     /**
      * Decodes the next block of data read from the supplied input stream and writes the decoded value to the supplied output
      * stream.
-     * 
+     *
      * @param is The source of the data to be decoded.
      * @param inputBuffer The input buffer that contains base 64 encoded data.
      * @param outputBuffer The output buffer where the decoded data will be placed.
@@ -280,13 +293,13 @@ public class Base64 {
          * Read one block (4 bytes) of Base 64 encoded data at a time and decode to the original byte values, removing any
          * padding present if necessary.
          */
-        int numberRead = readMostly(is, inputBuffer);
+        int numberRead = readMostly(is, inputBuffer, true);
 
         /*
          * Check for EOS.
          */
         if (numberRead != EOS) {
-            for (int i = 0; i < DECODE_BLOCK_SIZE_BYTES; i++) {
+            for (int i = 0; i < Math.min(numberRead, DECODE_BLOCK_SIZE_BYTES); i++) {
                 /*
                  * Note that the padding character ('='), will cause a value of -1 to be put into the byte array. This will
                  * be detected later on by the decoding process and recognized as a padding byte and will be removed from
@@ -344,7 +357,7 @@ public class Base64 {
      * Determines how many bytes were originally used to encode the current block of four (4) encoded bytes. Specifically, this
      * method determines if padding was added to the encoded block. If padding was added, this means that the original input
      * block for encoding was less than three (3) bytes.
-     * 
+     *
      * @param block A block of four (4) base 64 encoded bytes.
      * @return The original number of bytes used by the algorithm to produce the encoded block of four (4) bytes.
      */
@@ -387,11 +400,14 @@ public class Base64 {
          */
         private int position = EOS;
 
+        /**
+         * The available number of bytes.
+         */
         private int available = 0;
 
         /**
          * Creates a new base 64 input stream wrapped around the supplied java.io.InputStream instance.
-         * 
+         *
          * @param is A java.io.InputStream stream of data.
          */
         public InputStream(final java.io.InputStream is) {
@@ -401,7 +417,7 @@ public class Base64 {
         /**
          * Creates a new base 64 input stream wrapped around the supplied java.io.InputStream instance that performs the
          * requested operation on the data.
-         * 
+         *
          * @param is A java.io.InputStream stream of data.
          * @param operation The operation to be performed on the data.
          */
@@ -417,11 +433,14 @@ public class Base64 {
             /*
              * If there is no data waiting to be processed in the temporary buffer, it's time to go get more data.
              */
-
             if (position < 0) {
                 if (operation == Operations.ENCODE) {
-                    encodeBlock(in, inputBuffer, outputBuffer);
-                    available = outputBuffer.length;
+                    available = encodeBlock(in, inputBuffer, outputBuffer);
+
+                    // If bytes were encoded, set the number read to the size of the block size (4).
+                    if(available != EOS) {
+                        available = DECODE_BLOCK_SIZE_BYTES;
+                    }
                 } else {
                     available = decodeBlock(in, inputBuffer, outputBuffer);
                 }
@@ -505,7 +524,7 @@ public class Base64 {
 
         /**
          * Creates a new base 64 output stream wrapped around the supplied java.io.OutputStream instance.
-         * 
+         *
          * @param os A java.io.OutputStream stream of data.
          */
         public OutputStream(final java.io.OutputStream os) {
@@ -514,7 +533,7 @@ public class Base64 {
 
         /**
          * Creates a new base 64 output stream wrapped around the supplied java.io.OutputStream instance.
-         * 
+         *
          * @param os A java.io.OutputStream stream of data.
          * @param operation The operation to be performed on the data.
          */
@@ -531,14 +550,23 @@ public class Base64 {
             inputBuffer[position] = (byte) b;
             position++;
             if (position >= inputBuffer.length) {
+                final java.io.InputStream is = new ByteArrayInputStream(inputBuffer);
+
                 if (operation == Operations.ENCODE) {
-                    encodeData(inputBuffer, outputBuffer, inputBuffer.length);
-                    numberToWrite = DECODE_BLOCK_SIZE_BYTES;
+                    numberToWrite = encodeBlock(is, inputBuffer, outputBuffer);
+
+                    // If bytes were encoded, set the number read to the size of the block size (4).
+                    if(numberToWrite != EOS) {
+                        numberToWrite = DECODE_BLOCK_SIZE_BYTES;
+                    }
                 } else {
-                    numberToWrite = decodeData(inputBuffer, outputBuffer);
+                    numberToWrite = decodeBlock(is, inputBuffer, outputBuffer);
                 }
-                out.write(outputBuffer, 0, numberToWrite);
-                position = 0;
+
+                if(numberToWrite > 0) {
+                    out.write(outputBuffer, 0, numberToWrite);
+                    position = 0;
+                }
             }
         }
 
@@ -565,7 +593,7 @@ public class Base64 {
         /**
          * Performs any final clean-up/writing to ensure ALL data has been output to the wrapped output stream. This method
          * handles edge cases in the base 64 specification, such as padding, etc.
-         * 
+         *
          * @throws IOException if an error occurs during final output.
          */
         public void finish() throws IOException {
@@ -574,7 +602,7 @@ public class Base64 {
              * (i.e., it requires padding). This block will catch that case and flush the remaining bytes to ensure ALL data is
              * written out when the operation is ENCODE.
              */
-            if (operation == Operations.ENCODE && position < ENCODE_BLOCK_SIZE_BYTES) {
+            if (operation == Operations.ENCODE && position < ENCODE_BLOCK_SIZE_BYTES && position > 0) {
                 // Flush the remaining bytes!
                 encodeData(inputBuffer, outputBuffer, position);
                 out.write(outputBuffer);
